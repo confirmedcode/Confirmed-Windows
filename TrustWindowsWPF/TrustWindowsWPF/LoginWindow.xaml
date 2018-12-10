@@ -1,0 +1,114 @@
+﻿<Window x:Class="TrustWindowsWPF.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TrustWindowsWPF"
+        xmlns:common="clr-namespace:TrustWindowsWPF.Common"
+        xmlns:TrustWindowsWPF="clr-namespace:TrustWindowsWPF"
+        mc:Ignorable="d"
+        Title="Confirmed VPN" Height="560" Width="340" ResizeMode="NoResize" WindowStyle="None" MouseDown="Window_MouseDown" Icon="Resources/tunnel_icon_transparent_gfm_icon.ico">
+    <Window.Resources>
+        <Style TargetType="{x:Type Grid}">
+            <Style.Triggers>
+                <Trigger Property="IsVisible" Value="True">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="1" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="0*"/>
+        </Grid.ColumnDefinitions>
+        <TabControl x:Name="loginTabControl">
+            <TabItem Header="TabItem" Visibility="Collapsed">
+                <Grid Background="#FFFFFFFF">
+                    <Image x:Name="logoImage" HorizontalAlignment="Center" Height="100" Margin="0,60,0,0" VerticalAlignment="Top" Width="100" Source="Resources/icon.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <Label Content="Confirmed VPN" Typography.StandardLigatures="False" Margin="0,160,0,0" VerticalAlignment="Top" FontSize="24" HorizontalContentAlignment="Center" FontFamily="{StaticResource LatoRegular}" Foreground="{StaticResource ConfirmedBlue}"/>
+                    <Label x:Name="label" Content="The only VPN you can trust." Margin="0,200,0,0" VerticalAlignment="Top" FontFamily="{StaticResource RobotoLight}" HorizontalContentAlignment="Center" Foreground="{StaticResource CustomDarkGray}"/>
+                    <Button x:Name="secureButton" Style="{DynamicResource RoundCorner}" Content="Get Secure" Margin="60,400,60,0" VerticalAlignment="Top" Height="50" FontSize="16" FontFamily="{StaticResource RobotoLight}" Click="secureButton_Click"/>
+                    <Button x:Name="quitButton" Style="{DynamicResource JustText}" Content="Quit" Margin="60,455,60,0" VerticalAlignment="Top" Height="50" FontSize="16" FontFamily="{StaticResource RobotoLight}" Click="quitButton_Click" Foreground="{StaticResource CustomDarkGray}"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="TabItem" Visibility="Collapsed" KeyDown="OnKeyDownHandler">
+                <Grid Background="#FFFFFFFF">
+                    <TextBox x:Name="emailTextBox" Style="{StaticResource HoshiTextBox}" Tag="Email"  HorizontalAlignment="Center" Height="50" Margin="0,100,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="225" FontSize="18" FontFamily="{StaticResource RobotoLight}"/>
+                    <PasswordBox x:Name="passwordBox" Style="{StaticResource HoshiPassword}" Tag="Password" Margin="0,160,0,0" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Width="225" Height="50" FontFamily="{StaticResource RobotoLight}"/>
+                    <PasswordBox x:Name="passwordConfirmBox" Style="{StaticResource HoshiPassword}" Tag="Confirm Password" Margin="0,220,0,0" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Width="225" Height="50" common:VisibilityAnimation.AnimationType="Fade" FontFamily="{StaticResource RobotoLight}" />
+                    <Button x:Name="forgotPasswordButton" Content="Forgot password?" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="54,240,0,0" Style="{StaticResource JustText}" common:VisibilityAnimation.AnimationType="Fade" FontFamily="{StaticResource RobotoLight}" Click="forgotPasswordButton_Click"/>
+                    <Button x:Name="submitButton" Style="{DynamicResource RoundCornerAnimated}" Content="Submit" Margin="60,400,60,0" VerticalAlignment="Top" Height="50" FontSize="16" FontFamily="{StaticResource RobotoLight}" Click="submitButton_Click"/>
+                    <Button x:Name="submitHideButton" Style="{DynamicResource RoundCorner}" Content="Submit" Margin="60,400,60,0" VerticalAlignment="Top" Height="50" FontSize="16" FontFamily="{StaticResource RobotoLight}" Click="submitButton_Click"/>
+                    <Button x:Name="signUpButton" Style="{DynamicResource JustText}"  Content="Sign Up" HorizontalAlignment="Left" Margin="70,30,0,0" VerticalAlignment="Top" Width="76" Height="32" FontSize="16" Foreground="{StaticResource ConfirmedBlue}" Click="signUpButton_Click" FontFamily="{StaticResource RobotoLight}"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,40,0,0">
+                        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Height="20" Margin="0" HorizontalAlignment="Center" Width="1" VerticalAlignment="Top" />
+                    </StackPanel>
+                    <Button x:Name="signInButton" Style="{DynamicResource ResourceKey=JustText}"  Content="Sign In" HorizontalAlignment="Left" Margin="191,30,0,0" VerticalAlignment="Top" Width="76" Height="32" FontSize="16" Foreground="{StaticResource CustomDarkGray}" Click="signInButton_Click" FontFamily="{StaticResource RobotoLight}"/>
+                    <Label x:Name="confirmEmailLabel" Content="Please confirm email." Margin="0,0,0,-80" VerticalAlignment="Center" Width="333" FontFamily="{StaticResource RobotoLight}" HorizontalContentAlignment="Center" Foreground="{StaticResource CustomDarkGray}" Visibility="Hidden" common:VisibilityAnimation.AnimationType="Fade"/>
+                    <Button x:Name="backSubmitButton" Style="{DynamicResource JustText}" Content="Back" Margin="60,455,60,0" VerticalAlignment="Top" Height="50" FontSize="16" FontFamily="{StaticResource RobotoLight}" Foreground="{StaticResource CustomDarkGray}" Click="backSubmitButton_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="TabItem" Visibility="Collapsed">
+                <Grid Background="#FFFFFFFF">
+                    <Label Content="Signed in as" Margin="0,160,0,0" VerticalAlignment="Top" FontSize="18" HorizontalContentAlignment="Center" FontFamily="{StaticResource RobotoLight}" Foreground="{StaticResource CustomDarkGray}"/>
+                    <Label x:Name="emailLabel" Content="email@email.com" Margin="0,200,0,0" VerticalAlignment="Top" FontFamily="{StaticResource RobotoMedium}" FontSize="14" HorizontalContentAlignment="Center" Foreground="{StaticResource CustomDarkGray}"/>
+                    <Button x:Name="signedInContinueButton" Style="{DynamicResource RoundCorner}" Content="Continue" Margin="60,400,60,0" VerticalAlignment="Top" Height="50" FontSize="16" FontFamily="{StaticResource RobotoLight}" Click="signedInContinueButton_Click"/>
+                    <Button x:Name="signOutButton" Style="{DynamicResource JustText}" Content="Sign Out" Margin="60,455,60,0" VerticalAlignment="Top" Height="50" FontSize="16" FontFamily="{StaticResource RobotoLight}" Foreground="{StaticResource CustomDarkGray}" Click="signOutButton_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="TabItem" Visibility="Collapsed">
+                <Grid Background="#FFFFFFFF" Margin="0">
+                    <Label Content="Confirmed EULA" Margin="0,30,0,0" VerticalAlignment="Top" FontSize="18" HorizontalContentAlignment="Center" FontFamily="{StaticResource LatoRegular}" Foreground="{StaticResource CustomDarkGray}"/>
+                    <ScrollViewer Margin="10,70,10,200">
+                        <TextBlock TextWrapping="WrapWithOverflow" FontFamily="{StaticResource RobotoLight}" Foreground="{StaticResource CustomDarkGray}">
+                            Confirmed VPN is a software product that provides a VPN service for businesses and consumers around the world. The functionality requires an iOS app that is downloadable on the App Store and a Confirmed server, which is located across twelve different countries.&#x0a;
+Your privacy is very important to us, and our servers have been audited by multiple security experts to ensure the highest level of protection when using our service.<LineBreak/>
+Confirmed VPN, and any app by Confirmed, Inc., does not collect, store, or sell any data, including but not limited to browsing history, IP addresses, DNS queries, or application usage. The only information we collect from a client is anonymized device hardware, iOS version, Confirmed VPN software version, and crash data to help improve our service. This cannot be traced back to a user and does not provide any personal information.<LineBreak/>
+In the event that Confirmed VPN is required to comply with law enforcement officials, we require a subpoena, warrant, and/or other legal documents that compel us to comply. In those cases, we shall only disclose the limited information above, which does not include personal data.<LineBreak/>
+We want to remain an open and transparent company, and any and all changes to our privacy policy will be updated here. Your security and privacy is Confirmed, Inc.'s top priority, and we will ensure you are safe while using the Internet.
+                        </TextBlock>
+                        <!--<TextBox x:Name="eulaTextBox" TextWrapping="Wrap" Text="Below is our privacy policy, which describes how Confirmed, Inc., the parent company of Confirmed VPN, handles your personal information when you use our services.&#x0a;
+Confirmed VPN is a software product that provides a VPN service for businesses and consumers around the world. The functionality requires an iOS app that is downloadable on the App Store and a Confirmed server, which is located across twelve different countries.&#x0a;
+Your privacy is very important to us, and our servers have been audited by multiple security experts to ensure the highest level of protection when using our service.&#x0a;
+Confirmed VPN, and any app by Confirmed, Inc., does not collect, store, or sell any data, including but not limited to browsing history, IP addresses, DNS queries, or application usage. The only information we collect from a client is anonymized device hardware, iOS version, Confirmed VPN software version, and crash data to help improve our service. This cannot be traced back to a user and does not provide any personal information.&#x0a;
+In the event that Confirmed VPN is required to comply with law enforcement officials, we require a subpoena, warrant, and/or other legal documents that compel us to comply. In those cases, we shall only disclose the limited information above, which does not include personal data.&#x0a;
+We want to remain an open and transparent company, and any and all changes to our privacy policy will be updated here. Your security and privacy is Confirmed, Inc.'s top priority, and we will ensure you are safe while using the Internet." Margin="0" VerticalAlignment="Top" Width="300" FontFamily="Segoe UI"/>-->
+                    </ScrollViewer>
+                    <Button x:Name="agreeButton" Style="{DynamicResource RoundCorner}" Content="Agree &amp; Continue" Margin="60,400,60,0" VerticalAlignment="Top" Height="50" FontSize="16" FontFamily="{StaticResource RobotoLight}" IsEnabled="False" Click="agreeButton_Click" />
+                    <Button x:Name="agreeBackButton" Style="{DynamicResource JustText}" Content="Back" Margin="60,455,60,0" VerticalAlignment="Top" Height="50" FontSize="16" FontFamily="{StaticResource RobotoLight}" Foreground="{StaticResource CustomDarkGray}" Click="agreeBackButton_Click"/>
+                    <CheckBox x:Name="agreeCheckBox" Content="I agree to the license terms and conditions" HorizontalAlignment="Left" Margin="10,360,0,0" VerticalAlignment="Top" Checked="agreeCheckBox_Checked" FontFamily="{StaticResource RobotoLight}" Unchecked="agreeCheckBox_Checked"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="TabItem" Visibility="Collapsed">
+                <Grid Background="#FFFFFFFF">
+                    <WebBrowser x:Name="stripeBrowser" Navigating="stripeBrowser_Navigating"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="TabItem" Visibility="Collapsed">
+                <Grid Background="#FFFFFFFF">
+                    <Label Content="Get Started" Margin="0,30,0,0" VerticalAlignment="Top" FontSize="18" HorizontalContentAlignment="Center" FontFamily="{StaticResource LatoRegular}" Foreground="{StaticResource CustomDarkGray}"/>
+                    <TextBlock TextWrapping="WrapWithOverflow" Margin="60,110,60,0" VerticalAlignment="Top" TextAlignment="Center" FontSize="14" Foreground="{StaticResource CustomDarkGray}" LineHeight="23" FontFamily="{StaticResource RobotoLight}">
+                        Click the button below to install Confirmed VPN and protect all of your internet traffic.
+                    </TextBlock>
+                    <Button x:Name="installButton" Style="{DynamicResource RoundCornerAnimated}" Content="Install Confirmed" Margin="60,400,60,0" VerticalAlignment="Top" Height="50" FontSize="16" FontFamily="{StaticResource RobotoLight}" Click="installButton_Click" />
+                    <Button x:Name="installHideButton" Style="{DynamicResource RoundCorner}" Content="Install Confirmed" Margin="60,400,60,0" VerticalAlignment="Top" Height="50" FontSize="16" FontFamily="{StaticResource RobotoLight}" Click="installButton_Click" />
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>

@@ -1,0 +1,30 @@
+﻿<Window x:Class="TrustWindowsWPF.VPNSettings"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TrustWindowsWPF"
+        mc:Ignorable="d"
+        Title="Confirmed VPN" Height="470" Width="493" ResizeMode="NoResize" Icon="Resources/tunnel_icon_transparent_gfm_icon.ico" Background="#FFDDDDDD">
+    <Grid>
+        <TextBlock TextWrapping="WrapWithOverflow" FontFamily="{StaticResource RobotoLight}" Margin="20,10,20,0" VerticalAlignment="Top">
+    Certain websites don't operate well with a VPN or specifically block a VPN's
+use. For the most seamless experience, we recommend not sending this
+small percentage of traffic through a VPN. This is configurable and you can
+add or remove sites as you would like. For any site added, it and its
+subdomains will be whitelisted.
+        </TextBlock>
+        <CheckBox x:Name="whiteListCheckBox" Content="Enable Whitelisting" HorizontalAlignment="Left" Margin="10,91,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" FontFamily="{StaticResource RobotoLight}" Checked="whitelistEnableCheckBox_CheckedChanged" Unchecked="whitelistEnableCheckBox_CheckedChanged"/>
+
+        <Grid x:Name="whitelistGrid" Margin="0,123,0,0">
+            <CheckBox x:Name="netflixCheckBox" Content="Whitelist Netflix" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontFamily="{StaticResource RobotoLight}" Checked="netflixCheckBox_CheckedChanged" Unchecked="netflixCheckBox_CheckedChanged"/>
+            <CheckBox x:Name="huluCheckBox" Content="Whitelist Hulu" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top" FontFamily="{StaticResource RobotoLight}" Checked="huluCheckBox_CheckedChanged" Unchecked="huluCheckBox_CheckedChanged"/>
+            <TextBox x:Name="urlToAddTextBox" HorizontalAlignment="Left" Height="23" Margin="10,50,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="159" Tag="example.com" Style="{DynamicResource PlaceHolder}" FontFamily="{StaticResource RobotoLight}" FontSize="12"/>
+            <ListBox x:Name="urlListBox" Height="190" Margin="10,78,10,0" VerticalAlignment="Top" FontFamily="{StaticResource RobotoLight}" FontSize="12"/>
+            <Button x:Name="addURLButton" Content="Add" HorizontalAlignment="Left" Margin="174,50,0,0" VerticalAlignment="Top" Width="75" Height="23" Style="{StaticResource RoundCorner}" FontFamily="{StaticResource RobotoLight}" Click="addURLButton_Click"/>
+            <Button x:Name="removeURLButton" Content="Remove" HorizontalAlignment="Right" Margin="0,273,10,10" VerticalAlignment="Top" Width="75" Height="23" Style="{StaticResource RoundCorner}" FontFamily="{StaticResource RobotoLight}" Click="removeURLButton_Click"/>
+
+        </Grid>
+
+    </Grid>
+</Window>
