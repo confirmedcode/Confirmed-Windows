@@ -400,9 +400,7 @@ namespace TrustWindowsWPF
 
             foreach (Cookie cookie in cookies)
             {
-                Cookie temp = new Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain);
-                string cookieString = cookie.ToString();
-                bool result = InternetSetCookie(ConfirmedConstants.apiAddress, null, cookie.ToString() + "; expires = Sun, 01-Jan-2019 00:00:00 GMT");
+                bool result = InternetSetCookie(ConfirmedConstants.apiAddress, null, cookie.ToString() + "; expires = " + cookie.Expires.ToString());
             }
 
             stripeBrowser.Navigate(ConfirmedConstants.apiNewSubscription + locale);
