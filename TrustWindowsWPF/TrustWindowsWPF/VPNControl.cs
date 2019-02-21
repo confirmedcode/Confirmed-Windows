@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -9,6 +10,7 @@ using System.Net.NetworkInformation;
 using System.Threading;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
+using System.Management;
 using System.Management.Automation;
 using System.Collections.ObjectModel;
 
@@ -21,12 +23,15 @@ namespace TrustWindowsWPF
         bool verifiedConnection = false;
         bool disconnecting = false;
         bool threadRunning = false;
+        bool isVirtualMachine = false;
 
         public VPNControl()
         {
             getConnectionStatus();
 
             startConnectionCheckThread();
+
+            isVirtualMachine = DetectVM();
         }
 
         private void startConnectionCheckThread()
@@ -104,7 +109,7 @@ namespace TrustWindowsWPF
         {
             while(disconnecting) // wait until disconnect done
             {
-                Thread.Sleep(10);
+                Thread.Sleep(100);
             }
             System.Diagnostics.Process pProcess = new System.Diagnostics.Process();
             pProcess.StartInfo.FileName = "rasdial.exe";
@@ -335,6 +340,114 @@ namespace TrustWindowsWPF
             store.Close();
 
             return true;
+        }
+
+        public static NetworkInterface GetActiveEthernetOrWifiNetworkInterface()
+        {
+            var Nic = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(
+                a => a.OperationalStatus == OperationalStatus.Up &&
+                (a.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || a.NetworkInterfaceType == NetworkInterfaceType.Ethernet) &&
+                a.GetIPProperties().GatewayAddresses.Any(g => g.Address.AddressFamily.ToString() == "InterNetwork"));
+
+            return Nic;
+        }
+
+        private bool DetectVM()
+        {
+            using (var searcher = new System.Management.ManagementObjectSearcher("Select * from Win32_ComputerSystem"))
+            {
+                using (var items = searcher.Get())
+                {
+                    foreach (var item in items)
+                    {
+                        string manufacturer = item["Manufacturer"].ToString().ToLower();
+                        if ((manufacturer == "microsoft corporation" && item["Model"].ToString().ToUpperInvariant().Contains("VIRTUAL"))
+                            || manufacturer.Contains("vmware")
+                            || item["Model"].ToString() == "VirtualBox")
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+#if DEBUG
+            return true;
+#else
+            return false;
+#endif
+        }
+
+        bool dnsAltered = false;
+        // make sure interface set to static DNS to avoid DNS leaks
+        public void SetDNS()
+        {
+            if (isVirtualMachine)
+            {
+                string[] Dns = { "1.1.1.1" };
+                var CurrentInterface = GetActiveEthernetOrWifiNetworkInterface();
+                if (CurrentInterface == null) return;
+
+                ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
+                ManagementObjectCollection objMOC = objMC.GetInstances();
+                foreach (ManagementObject objMO in objMOC)
+                {
+                    if ((bool)objMO["IPEnabled"])
+                    {
+                        if (objMO["Caption"].ToString().Contains(CurrentInterface.Description) && isDNSAuto(CurrentInterface.Id))
+                        {
+                            ManagementBaseObject objdns = objMO.GetMethodParameters("SetDNSServerSearchOrder");
+                            if (objdns != null)
+                            {
+                                objdns["DNSServerSearchOrder"] = Dns;
+                                objMO.InvokeMethod("SetDNSServerSearchOrder", objdns, null);
+                                dnsAltered = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private bool isDNSAuto(string NetworkAdapterGUID)
+        {
+            string path = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + NetworkAdapterGUID;
+            string ns = (string)Registry.GetValue(path, "NameServer", null);
+            if (String.IsNullOrEmpty(ns))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void UnsetDNS()
+        {
+            if (isVirtualMachine && dnsAltered)
+            {
+                var CurrentInterface = GetActiveEthernetOrWifiNetworkInterface();
+                if (CurrentInterface == null) return;
+
+                ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
+                ManagementObjectCollection objMOC = objMC.GetInstances();
+                foreach (ManagementObject objMO in objMOC)
+                {
+                    if ((bool)objMO["IPEnabled"])
+                    {
+                        if (objMO["Caption"].ToString().Contains(CurrentInterface.Description))
+                        {
+                            ManagementBaseObject objdns = objMO.GetMethodParameters("SetDNSServerSearchOrder");
+                            if (objdns != null)
+                            {
+                                objdns["DNSServerSearchOrder"] = null;
+                                objMO.InvokeMethod("SetDNSServerSearchOrder", objdns, null);
+                                dnsAltered = false;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
