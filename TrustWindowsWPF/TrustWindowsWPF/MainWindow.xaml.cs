@@ -386,6 +386,11 @@ namespace TrustWindowsWPF
 
             blueCircle.Visibility = Visibility.Visible;
             grayCircle.Visibility = Visibility.Hidden;
+
+            new System.Threading.Thread(() =>
+            {
+                vpnControl.SetDNS();
+            }).Start();
         }
 
         private void setDisconnected()
@@ -409,6 +414,8 @@ namespace TrustWindowsWPF
                 System.Threading.Thread.CurrentThread.IsBackground = true;
                 /* run your code here */
                 vpnControl.disconnectFromVPN();
+
+                vpnControl.UnsetDNS();
             }).Start();
 
             blueCircle.Visibility = Visibility.Hidden;
@@ -425,12 +432,15 @@ namespace TrustWindowsWPF
             isConnecting = true;
             OnPropertyChanged("isConnecting");
 
-            new System.Threading.Thread(() =>
+            if (!reconnect)
             {
-                System.Threading.Thread.CurrentThread.IsBackground = true;
+                new System.Threading.Thread(() =>
+                {
+                    System.Threading.Thread.CurrentThread.IsBackground = true;
                 /* run your code here */
-                vpnControl.connectToVPN();
-            }).Start();
+                    vpnControl.connectToVPN();
+                }).Start();
+            }
 
 
             bluePowerCenter.Visibility = Visibility.Hidden;
@@ -477,6 +487,7 @@ namespace TrustWindowsWPF
         }
 
         bool initialSelect = false;
+        bool reconnect = false;
         private void regionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (initialSelect)
@@ -499,7 +510,7 @@ namespace TrustWindowsWPF
 
                 new System.Threading.Thread(() =>
                 {
-                    bool reconnect = false;
+                    reconnect = false;
                     if (vpnControl.isConnected())
                     {
                         reconnect = true;
@@ -514,6 +525,7 @@ namespace TrustWindowsWPF
                     if (reconnect)
                     {
                         vpnControl.connectToVPN();
+                        reconnect = false;
                     }
                 }).Start();
             }
@@ -573,6 +585,7 @@ namespace TrustWindowsWPF
                 if (vpnControl.isConnected())
                 {
                     vpnControl.disconnectFromVPN();
+                    vpnControl.UnsetDNS();
                 }
 
                 vpnControl.removeVPN();
@@ -627,6 +640,7 @@ namespace TrustWindowsWPF
                     displayShutdownMessage();
 
                     vpnControl.disconnectFromVPN();
+                    vpnControl.UnsetDNS();
                 }
 
                 vpnControl.removeVPN();
